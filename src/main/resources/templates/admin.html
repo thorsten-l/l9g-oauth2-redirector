@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Redirector Administrator Info</title>
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" ></link>
+    <link th:rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.min.css}" ></link>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/app}">Redirector</a>
+        <div class="d-flex">
+          <span class="navbar-text">Hi, <span th:text="${fullname}">fullname</span>&nbsp;&nbsp;&nbsp;</span>
+          <form style="margin-left: 1em" method="post" action="/logout">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"></input>
+            <input class="btn btn-primary" type="submit" value="Logout"></input>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1 style="margin-top: 0.5em; margin-bottom: 1em;">Administrator</h1>
+
+      <div sec:authorize="hasAuthority('ROLE_RESOURCE_admin')">
+
+        <h4>Info</h4>
+        <ul>
+          <li><a target="_blank" th:href="@{/api/principal}">principal</a></li>
+          <li><a target="_blank" th:href="@{/api/attributes}">attributes</a></li>
+          <li><a target="_blank" th:href="@{/api/userinfo}">userinfo</a></li>
+          <li><a target="_blank" th:href="@{/api/idtoken}">idToken</a></li>
+          <li><a target="_blank" th:href="@{/api/accesstoken}">accessToken</a></li>
+        </ul>
+
+        <h4>Build</h4>
+        <ul>
+          <li><a target="_blank" th:href="@{/api/buildinfo}">buildinfo</a></li>
+        </ul>
+      </div>
+
+      <h4>Clear Text Password</h4>
+
+      <div class="input-group" style="margin-bottom: 2em;">
+        <!-- Read-only password field (initially of type 'password') -->
+        <input type="password" readonly 
+               class="form-control" 
+               id="passwordInput"
+               th:value="${passwordService.getPassword(kcuid)}" />
+        <!-- Button to toggle visibility, with FontAwesome eye icon -->
+        <button class="btn btn-outline-secondary" type="button" id="togglePasswordBtn" onclick="togglePasswordVisibility()">
+          <i class="fa-solid fa-eye"></i>
+        </button>
+      </div>
+
+      <!-- JavaScript zum Umschalten der Sichtbarkeit -->
+      <script>
+        function togglePasswordVisibility() {
+          const passwordInput = document.getElementById("passwordInput");
+          const eyeIcon = document.querySelector("#togglePasswordBtn i");
+
+          if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            eyeIcon.classList.remove("fa-eye");
+            eyeIcon.classList.add("fa-eye-slash");
+          } else {
+            passwordInput.type = "password";
+            eyeIcon.classList.remove("fa-eye-slash");
+            eyeIcon.classList.add("fa-eye");
+          }
+        }
+      </script>
+
+      <p style="margin-top: 4em"><a th:href="@{/r/app}">Back to App</a></p>
+      
+    </div>
+
+    
+    
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+  </body>
+</html>

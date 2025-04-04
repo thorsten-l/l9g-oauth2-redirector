@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Redirector App</title>
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" ></link>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/app}">Redirector</a>
+        <div class="d-flex">
+          <span class="navbar-text">Hi, <span th:text="${fullname}">fullname</span>&nbsp;&nbsp;&nbsp;</span>
+          <form style="margin-left: 1em" method="post" action="/logout">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"></input>
+            <input class="btn btn-primary" type="submit" value="Logout"></input>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1 style="margin-top: 0.5em; margin-bottom: 1em;">App</h1>
+
+      <h4>Redirects</h4>  
+      <ul>
+        <li><a target="_blank" th:href="@{/r/account}">Account Console</a></li>
+        <li><a target="_blank" th:href="@{/r/alfresco}">ECM / Alfresco</a></li>
+        <li><a target="_blank" th:href="@{/r/portal}">Portal</a></li>
+        <li><a target="_blank" th:href="@{/r/portalt}">Geschäftsausstattung (Portal Alt)</a></li>
+        <li><a target="_blank" th:href="@{/r/owa}">OWA</a></li>
+        <li><a target="_blank" th:href="@{/r/tickets}">Tickets</a></li>
+      </ul>
+
+    </div>
+
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+  </body>
+</html>

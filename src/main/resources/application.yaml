@@ -1,0 +1,70 @@
+
+app:
+  oauth2:
+    registration:
+      name: app
+  password:
+    keycloak-user-id: "kcuid"
+    attribute-name: "ENCRYPTED_USER_PASSWORD"
+    private-key: "*** unset ***"
+  admin-users-uri: "https://id.dev.sonia.de/admin/realms/dev/users/"
+  homepage-enabled: false
+
+spring:
+  application:
+    name: redirector
+  profiles:
+    active: default
+  config:
+    import: optional:file:config.yaml
+  messages:
+    basename: messages
+    encoding: UTF-8
+  security:
+    oauth2:
+      client:
+        registration:
+          app:
+            client-id: redirector
+            client-secret: "*** not set ***"
+            scope: openid,profile,email,roles
+        provider:
+          app:
+            issuer-uri: https://id.dev.sonia.de/realms/dev
+            jwks-uri: https://id.dev.sonia.de/realms/dev/protocol/openid-connect/certs
+            user-name-attribute: preferred_username
+            
+#  ssl:
+#    bundle:
+#      jks:
+#        web-server:
+#          key:
+#            alias: "server"
+#            password: "*** unset ***"
+#          keystore:
+#            location: "file:server.p12"
+#            password: "*** unset ***"
+#            type: "PKCS12"
+
+logging:
+  pattern:
+    console: "%date{yyyy-MM-dd HH:mm:ss} %magenta([%thread]) %highlight(%-5level) %logger:%line - %yellow(%msg %n)"
+  level:
+    root: INFO
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    session:
+      timeout: 4m
+#  ssl:
+#    bundle: "web-server"
+
+management:
+  server:
+    port: 9091
+  endpoints:
+    web:
+      exposure:
+        include: info,health,metrics
