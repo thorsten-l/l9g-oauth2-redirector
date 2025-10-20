@@ -6,13 +6,13 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.4</version>
+    <version>3.5.6</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>l9g.oauth2</groupId>
   <artifactId>redirector</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <name>L9G OAuth2 Redirector</name>
   <description>OAuth2 token based redirector</description>
 
@@ -55,7 +55,7 @@
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk18on</artifactId>
-      <version>1.80</version>
+      <version>1.82</version>
     </dependency>
 
     <!-- webjars -->
@@ -66,7 +66,7 @@
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>bootstrap</artifactId>
-      <version>5.3.3</version>
+      <version>5.3.8</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
