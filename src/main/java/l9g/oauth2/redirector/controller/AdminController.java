@@ -15,10 +15,9 @@
  */
 package l9g.oauth2.redirector.controller;
 
-import l9g.oauth2.redirector.service.PasswordService;
+import l9g.oauth2.redirector.service.PasswordDecryptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -31,23 +30,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Slf4j
 public class AdminController
 {
-  private final PasswordService passwordService;
-
-  @Value("${app.password.keycloak-user-id}")
-  private String appKeycloakUserId;
+  private final PasswordDecryptionService passwordService;
 
   @GetMapping("/admin")
   public String adminGET(Model model,
     @AuthenticationPrincipal OAuth2User principal)
   {
-    log.debug("appGET");
-    String kcuid = principal.getAttribute(appKeycloakUserId);
-    
-    log.debug("kcuid={}", kcuid);
-    
+    log.debug("adminGET");
+
     model.addAttribute("fullname", ((DefaultOidcUser)principal).getFullName());
-    model.addAttribute("kcuid", kcuid);
-    model.addAttribute("passwordService", passwordService);
+    // Klartext-Passwort aus dem ECIES-verschluesselten UserInfo-Attribut
+    // (Scope 'sonia-secret') - ersetzt den frueheren Admin-API-Lookup.
+    model.addAttribute("password", passwordService.getPassword(principal));
     return "admin";
   }
 

@@ -86,6 +86,26 @@
 
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <!--
+            JDK 23+ fuehrt Annotation-Prozessoren vom Classpath nicht mehr
+            implizit aus. Lombok muss daher explizit als Prozessor-Pfad
+            deklariert werden, sonst wird z.B. das @Slf4j-'log'-Feld nicht
+            generiert und der Build schlaegt fehl (JDK 25).
+          -->
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+
+      <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <configuration>

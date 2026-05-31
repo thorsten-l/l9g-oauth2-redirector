@@ -16,30 +16,27 @@
 package l9g.oauth2.redirector.service;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 /**
+ * Liefert das Access-Token des interaktiv angemeldeten Users (Authorization
+ * Code Flow) fuer Outbound-API-Calls.
+ *
+ * <p>
+ * Der frueher hier vorhandene {@code adminServiceAccessToken()}
+ * (Client-Credentials-Flow fuer die Keycloak-Admin-API) ist entfallen: das
+ * verschluesselte Passwort kommt jetzt ueber den OIDC-UserInfo-Endpoint
+ * (Scope {@code sonia-secret}), siehe {@code PasswordDecryptionService}.
  *
  * @author Thorsten Ludewig (t.ludewig@gmail.com)
  */
@@ -48,87 +45,12 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class TokenService
 {
-  private final static String GRANT_TYPE = "client_credentials";
-
-  private final RestTemplate restTemplate = new RestTemplate();
-
-  private final ClientRegistrationRepository clientRegistrationRepository;
-
   private final OAuth2AuthorizedClientManager authorizedClientManager;
 
   private final OAuth2AuthorizedClientService authorizedClientService;
 
   @Value("${app.oauth2.registration.name}")
   private String registrationName;
-
-  @Value("${spring.security.oauth2.client.registration.${app.oauth2.registration.name}.client-id}")
-  private String clientId;
-
-  @Value("${spring.security.oauth2.client.registration.${app.oauth2.registration.name}.client-secret}")
-  private String clientSecret;
-
-  private String tokenEndpoint()
-  {
-    String tokenEndpoint = null;
-
-    ClientRegistration registration =
-      clientRegistrationRepository.findByRegistrationId(registrationName);
-
-    if(registration != null)
-    {
-      tokenEndpoint = registration.getProviderDetails().getTokenUri();
-      log.debug("token endpoint uri = {}", tokenEndpoint);
-    }
-    else
-    {
-      log.warn("registration is null");
-    }
-
-    return tokenEndpoint;
-  }
-
-  public OAuth2AccessToken adminServiceAccessToken()
-  {
-    log.debug("adminServiceAccessToken");
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-    MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-    body.add("grant_type", GRANT_TYPE);
-    body.add("client_id", clientId);
-    body.add("client_secret", clientSecret);
-
-    HttpEntity<MultiValueMap<String, String>> requestEntity =
-      new HttpEntity<>(body, headers);
-
-    ResponseEntity<Map> responseEntity =
-      restTemplate.postForEntity(tokenEndpoint(), requestEntity, Map.class);
-
-    if(responseEntity.getStatusCode().is2xxSuccessful()
-      && responseEntity.getBody() != null)
-    {
-      Map<String, Object> responseBody = responseEntity.getBody();
-      String tokenValue = (String)responseBody.get("access_token");
-      Integer expiresIn = (Integer)responseBody.get("expires_in");
-      Instant issuedAt = Instant.now();
-      Instant expiresAt = issuedAt.plusSeconds(
-        expiresIn != null ? expiresIn.longValue() : 3600);
-
-      log.debug("expiresAt = {}", expiresAt);
-
-      return new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-        tokenValue,
-        issuedAt,
-        expiresAt,
-        Collections.emptySet());
-    }
-    else
-    {
-      throw new RuntimeException("Fehler beim Abruf des Access Tokens: "
-        + responseEntity.getStatusCode());
-    }
-  }
 
   public OAuth2AccessToken authClientAccessToken()
   {

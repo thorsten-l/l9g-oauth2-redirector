@@ -3,11 +3,13 @@ app:
   oauth2:
     registration:
       name: app
+  # Konfiguration fuer PasswordDecryptionService:
+  # attribute-name : Name des UserInfo-Claims mit ECIES-verschluesseltem PW
+  #                  (wird ueber den Client-Scope 'sonia-secret' geliefert).
+  # private-key    : PKCS8-EC-Privatekey (Base64) zur ECIES-Entschluesselung.
   password:
-    keycloak-user-id: "kcuid"
     attribute-name: "ENCRYPTED_USER_PASSWORD"
     private-key: "*** unset ***"
-  admin-users-uri: "https://id.dev.sonia.de/admin/realms/dev/users/"
   homepage-enabled: false
 
 spring:
@@ -27,7 +29,11 @@ spring:
           app:
             client-id: redirector
             client-secret: "*** not set ***"
-            scope: openid,profile,email,roles
+            # 'sonia-secret' liefert das ENCRYPTED_USER_PASSWORD-Attribut im
+            # UserInfo-Endpoint - ersetzt den frueheren Admin-API-Lookup.
+            # 'email' ist zugleich Ausloeser fuer den UserInfo-Abruf (Spring
+            # holt UserInfo nur bei Ueberschneidung mit {profile,email,...}).
+            scope: openid,profile,email,roles,sonia-secret
         provider:
           app:
             issuer-uri: https://id.dev.sonia.de/realms/dev

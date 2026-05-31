@@ -16,10 +16,9 @@
 package l9g.oauth2.redirector.controller;
 
 import l9g.oauth2.redirector.service.TokenService;
-import l9g.oauth2.redirector.service.PasswordService;
+import l9g.oauth2.redirector.service.PasswordDecryptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
@@ -35,12 +34,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Slf4j
 public class RedirectController
 {
-  @Value("${app.password.keycloak-user-id}")
-  private String appKeycloakUserId;
-
   private final JwtDecoder jwtDecoder;
 
-  private final PasswordService passwordService;
+  private final PasswordDecryptionService passwordService;
 
   private final TokenService tokenService;
 
@@ -56,7 +52,6 @@ public class RedirectController
     if(principal != null)
     {
       DefaultOidcUser user = (DefaultOidcUser)principal;
-      String kcuid = principal.getAttribute(appKeycloakUserId);
 
       log.debug("name/sub={}", user.getName());
       log.debug("preferred_username={}", user.getPreferredUsername());
@@ -64,8 +59,9 @@ public class RedirectController
 
       OAuth2AccessToken accessToken = tokenService.authClientAccessToken();
       model.addAttribute("fullname", user.getFullName());
-      model.addAttribute("kcuid", kcuid);
-      model.addAttribute("passwordService", passwordService);
+      // Klartext-Passwort aus dem ECIES-verschluesselten UserInfo-Attribut
+      // (Scope 'sonia-secret') - ersetzt den frueheren Admin-API-Lookup.
+      model.addAttribute("password", passwordService.getPassword(principal));
       model.addAttribute("user", user);
       model.addAttribute("userinfo", user.getUserInfo());
       model.addAttribute("idtoken", user.getIdToken());
