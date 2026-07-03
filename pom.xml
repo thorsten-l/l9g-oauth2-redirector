@@ -12,7 +12,7 @@
 
   <groupId>l9g.oauth2</groupId>
   <artifactId>redirector</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.1.0</version>
   <name>L9G OAuth2 Redirector</name>
   <description>OAuth2 token based redirector</description>
 
