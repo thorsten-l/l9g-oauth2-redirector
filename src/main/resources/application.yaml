@@ -17,6 +17,8 @@ spring:
     name: redirector
   profiles:
     active: default
+  banner:
+    location: classpath:banner.txt
   config:
     import: optional:file:config.yaml
   messages:
